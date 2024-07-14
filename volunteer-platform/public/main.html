@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Admin Interface</title>
+    <style>
+        body {
+            font-family: Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+        }
+
+        .nav-panel {
+            width: 20%;
+            background-color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .nav-panel button {
+            margin: 10px 0;
+            padding: 15px;
+            border: none;
+            background-color: #444;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            color: white;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .nav-panel button:hover {
+            background-color: #555;
+        }
+
+        .nav-panel a {
+            text-decoration: none;
+        }
+
+        .content-area {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .calendar-nav button {
+            background-color: #ff5555;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #ff3333;
+        }
+
+        .calendar-nav span {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .search-button {
+            background-color: white;
+            color: black;
+            border: 2px solid #ccc;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            position: absolute;
+            right: 0;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            background-color: #eee;
+        }
+
+        .search-button img {
+            margin-right: 10px;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .calendar .header {
+            font-weight: bold;
+            background-color: #ff5555;
+            color: white;
+            padding: 10px;
+        }
+
+        .calendar .day {
+            padding: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .calendar .day:hover {
+            background-color: #ddd;
+        }
+
+        .calendar .today {
+            background-color: #ffcccc;
+        }
+
+        .bottom-section {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .gallery-section {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .gallery-text {
+            max-width: 50%;
+        }
+
+        .gallery-text h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .gallery-text p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .gallery-text button {
+            padding: 10px 20px;
+            background-color: #ff5555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .gallery-text button:hover {
+            background-color: #ff3333;
+        }
+
+        .gallery-image {
+            width: 45%;
+        }
+
+        .gallery-image img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .arrow-left {
+            left: 10px;
+        }
+
+        .arrow-right {
+            right: 10px;
+        }
+
+        .date-input-dialog {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #6200ea;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            display: none;
+            z-index: 2;
+        }
+
+        .date-input-dialog h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .date-input-dialog label {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .date-input-dialog input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .date-input-dialog button {
+            background-color: #ff5555;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        .date-input-dialog button:hover {
+            background-color: #ff3333;
+        }
+
+        .date-input-dialog .cancel-button {
+            background-color: #ccc;
+            color: black;
+        }
+
+        .date-input-dialog .cancel-button:hover {
+            background-color: #bbb;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="nav-panel">
+            <button onclick="goToPage('home')">Home</button>
+            <a href="eventcreation.html"><button>Create Event</button></a>
+            <a href="eventinfo.html"><button>Event Info</button></a>
+            <a href="messages.html"><button>Messages</button></a>
+            <button onclick="goToPage('event-status')">Event Status</button>
+            <li><button class="sign-out" id="signOutButton">Sign Out</button></li>
+        </div>
+        <div class="content-area">
+            <div class="calendar-nav">
+                <button onclick="prevMonth()">Previous Month</button>
+                <span id="calendar-month-year"></span>
+                <button onclick="nextMonth()">Next Month</button>
+                <button style="color: black; background-color: white; padding-left: 60px;" class="search-button" onclick="toggleDateInputDialog()">
+                    Search by Date
+                    <img style="padding-left: 20px;" src="icons8-search.svg" alt="Search Icon" width="24" height="24">
+                </button>
+            </div>
+            <div class="calendar" id="calendar">
+                <!-- Calendar will be generated here by JavaScript -->
+            </div>
+            <div class="date-input-dialog" id="date-input-dialog">
+                <h2>Enter Date</h2>
+                <label for="date-input">Date:</label>
+                <input type="date" id="date-input">
+                <div>
+                    <button onclick="setDate()">OK</button>
+                    <button class="cancel-button" onclick="toggleDateInputDialog()">Cancel</button>
+                </div>
+            </div>
+            <div class="bottom-section">
+                <button class="arrow arrow-left" onclick="prevImage()">&#8249;</button>
+                <div class="gallery-section">
+                    <div class="gallery-text">
+                        <h2 id="gallery-title">Help Manavlok save abandoned elderly parents from begging</h2>
+                        <p id="gallery-description">Join us in our mission to provide support and care for the elderly who have been abandoned. Your contributions can make a significant difference in their lives.</p>
+                    </div>
+                    <div class="gallery-image">
+                        <img id="gallery-img" src="https://via.placeholder.com/600x400" alt="Help Manavlok">
+                    </div>
+                </div>
+                <button class="arrow arrow-right" onclick="nextImage()">&#8250;</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function goToPage(page) {
+            alert('Going to ' + page);
+        }
+
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        function generateCalendar(month, year) {
+            const calendarElement = document.getElementById('calendar');
+            calendarElement.innerHTML = "";
+
+            const monthYearElement = document.getElementById('calendar-month-year');
+            monthYearElement.textContent = `${months[month]} ${year}`;
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            headers.forEach(day => {
+                const headerElement = document.createElement('div');
+                headerElement.classList.add('header');
+                headerElement.textContent = day;
+                calendarElement.appendChild(headerElement);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarElement.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                if (day === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
+                    dayElement.classList.add('today');
+                }
+                dayElement.textContent = day;
+                calendarElement.appendChild(dayElement);
+            }
+        }
+
+        function prevMonth() {
+            currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+            currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function nextMonth() {
+            currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+            currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function toggleDateInputDialog() {
+            const dialog = document.getElementById('date-input-dialog');
+            dialog.style.display = dialog.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function setDate() {
+            const input = document.getElementById('date-input').value;
+            const date = new Date(input);
+            if (!isNaN(date.getTime())) {
+                currentYear = date.getFullYear();
+                currentMonth = date.getMonth();
+                generateCalendar(currentMonth, currentYear);
+                toggleDateInputDialog();
+            }
+        }
+
+        function donateNow() {
+            alert('Redirecting to donation page...');
+        }
+
+        let currentImageIndex = 0;
+        const images = [
+ 
+            {
+                src: 'https://via.placeholder.com/600x400/7f7fff',
+                title: 'Contribute to our healthcare initiative',
+                description: 'Your donations will help us offer medical care and support to communities without access to essential healthcare services.'
+            },
+        ];
+
+        function showImage(index) {
+            const imgElement = document.getElementById('gallery-img');
+            const titleElement = document.getElementById('gallery-title');
+            const descriptionElement = document.getElementById('gallery-description');
+            imgElement.src = images[index].src;
+            titleElement.textContent = images[index].title;
+            descriptionElement.textContent = images[index].description;
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            showImage(currentImageIndex);
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            showImage(currentImageIndex);
+        }
+        function signOut() {
+    fetch('/auth/logout', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                alert("Sign out successful!");
+                window.location.href = "index.html"; // Redirect to home or login page
+            } else {
+                alert("Failed to sign out.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred. Please try again.");
+        });
+}
+
+document.getElementById('signOutButton').addEventListener('click', signOut);
+
+function checkSession() {
+    fetch('/api/current-user')
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "index.html"; // Redirect to login page if not authenticated
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Call checkSession on page load to ensure user is authenticated
+document.addEventListener('DOMContentLoaded', checkSession);
+
+
+
+document.getElementById('signOutButton').addEventListener('click', signOut);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            generateCalendar(currentMonth, currentYear);
+            showImage(currentImageIndex);
+        });
+    </script>
+</body>
+</html>

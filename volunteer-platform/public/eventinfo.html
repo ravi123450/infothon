@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGO Volunteer Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+        }
+        .search-bar select,
+        .search-bar input {
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .event {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            position: relative;
+        }
+        .event h2 {
+            margin-top: 0;
+        }
+        .event-info-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none; /* Added to remove underline */
+            display: inline-block; /* Added to fix button size */
+        }
+        .event-info-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NGO Name</h1>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search..." onkeyup="searchEvents()">
+            </div>
+        </header>
+        
+        <div id="events-container">
+            <!-- Event titles will be loaded here dynamically -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadEvents);
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/events');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch events');
+                }
+                const events = await response.json();
+
+                const container = document.getElementById('events-container');
+                container.innerHTML = '';
+
+                events.forEach(event => {
+                    const eventDiv = document.createElement('div');
+                    eventDiv.classList.add('event');
+                    eventDiv.innerHTML = `
+                        <h2>${event.title}</h2>
+                        <a href="eventdetails.html?id=${event._id}"><button class="event-info-button">Event Info</button></a>
+                    `;
+                    container.appendChild(eventDiv);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error fetching events.');
+            }
+        }
+
+        function searchEvents() {
+            const input = document.getElementById('search-input').value.toLowerCase();
+            const events = document.getElementsByClassName('event');
+
+            for (let i = 0; i < events.length; i++) {
+                const eventName = events[i].getElementsByTagName('h2')[0].innerText.toLowerCase();
+                if (eventName.includes(input)) {
+                    events[i].style.display = 'block';
+                } else {
+                    events[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

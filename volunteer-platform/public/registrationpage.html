@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Application Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            background-image: url('istockphoto-1498170916-612x612.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            padding: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin: 0;
+        }
+
+        .header h2 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .form-group label {
+            width: 100%;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-group select {
+            width: calc(32% - 20px);
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .form-inline input {
+            width: calc(33% - 20px);
+        }
+
+        .verify-button {
+            margin-left: 10px;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .verify-button:hover {
+            background-color: #0056b3;
+        }
+
+        .checkbox-group {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            width: auto;
+            margin: 0;
+        }
+
+        button[type="submit"] {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            padding: 15px 20px;
+            font-size: 16px;
+            width: 100%;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        textarea {
+            width: calc(100% - 20px);
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Join Our Non-Profit Efforts</h1>
+            <h2>Volunteer Application Form</h2>
+        </div>
+        <form id="registration-form" action="/api/register" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="eventId" name="eventId">
+            <div class="form-group">
+                <label for="title">Name</label>
+                <div class="form-inline">
+                    <select name="title" id="title">
+                        <option value="mr">Mr</option>
+                        <option value="mrs">Mrs</option>
+                        <option value="miss">Miss</option>
+                    </select>
+                    <input type="text" name="firstName" id="first-name" placeholder="First Name">
+                    <input type="text" name="lastName" id="last-name" placeholder="Last Name">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="birth-date">Birth Date</label>
+                <input type="date" name="birthDate" id="birth-date">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="form-inline">
+                    <input type="email" name="email" id="email" placeholder="Your Email">
+                    <button type="button" class="verify-button" onclick="verifyEmail()">Verify Email</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <div class="form-inline">
+                    <input type="tel" name="phone" id="phone" placeholder="Your Phone Number">
+                    <button type="button" class="verify-button" onclick="verifyPhone()">Verify Phone</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <div class="form-inline">
+                    <input type="text" name="street" id="street-address" placeholder="Street Address">
+                </div>
+                <div class="form-inline">
+                    <input type="text" name="city" id="city" placeholder="City">
+                    <input type="text" name="state" id="state" placeholder="State">
+                    <input type="text" name="zipCode" id="zip-code" placeholder="Postal/Zip Code">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="education">Educational Background</label>
+                <div class="form-inline">
+                    <input type="text" name="college" id="college" placeholder="College/School">
+                    <input type="text" name="field" id="field" placeholder="Field of Study">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="occupation">Occupation</label>
+                <div class="form-inline">
+                    <input type="text" name="company" id="company" placeholder="Company">
+                    <input type="text" name="position" id="position" placeholder="Position">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="aadhar-number">Aadhaar Number & Upload</label>
+                <div class="form-inline">
+                    <input type="text" name="aadharNumber" id="aadhar-number" placeholder="Aadhaar Number">
+                    <input type="file" name="aadharUpload" id="aadhar-upload" accept=".pdf, .jpg, .jpeg, .png">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="volunteer-areas">Areas of Interest</label>
+                <select name="volunteerAreas" id="volunteer-areas">
+                    <option value="select">Select an Area</option>
+                    <option value="education">Education</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="environment">Environment</option>
+                    <option value="community_service">Community Service</option>
+                    <option value="animal_welfare">Animal Welfare</option>
+                    <option value="arts_and_culture">Arts and Culture</option>
+                    <option value="sports">Sports</option>
+                    <option value="disaster_relief">Disaster Relief</option>
+                    <option value="senior_services">Senior Services</option>
+                    <option value="youth_programs">Youth Programs</option>
+                    <option value="administrative_support">Administrative Support</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Previous Volunteering Experience</label>
+                <textarea name="experience" id="experience" placeholder="Describe your experience"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Available Days</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="availableDays" value="monday"> Monday</label>
+                    <label><input type="checkbox" name="availableDays" value="tuesday"> Tuesday</label>
+                    <label><input type="checkbox" name="availableDays" value="wednesday"> Wednesday</label>
+                    <label><input type="checkbox" name="availableDays" value="thursday"> Thursday</label>
+                    <label><input type="checkbox" name="availableDays" value="friday"> Friday</label>
+                    <label><input type="checkbox" name="availableDays" value="saturday"> Saturday</label>
+                    <label><input type="checkbox" name="availableDays" value="sunday"> Sunday</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><input type="checkbox" name="terms" id="terms"> I agree to the terms and conditions</label>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <script>
+        // Example verification functions
+        function verifyEmail() {
+            alert('Email has been verified!');
+        }
+
+        function verifyPhone() {
+            alert('Phone number has been verified!');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('eventId');
+            document.getElementById('eventId').value = eventId;
+
+            const registrationForm = document.getElementById('registration-form');
+            registrationForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(registrationForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Registration successful!');
+                        registrationForm.reset();
+                    } else {
+                        alert('Failed to register. Please try again.');
+                    }
+                } catch (error) {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

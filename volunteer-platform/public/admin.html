@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px 0;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            display: block;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .calendar {
+            flex: 1;
+            min-width: 300px;
+            max-width: 45%;
+            border: 1px solid #000;
+            padding: 10px;
+        }
+
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .calendar-controls button {
+            background-color: #ff6b6b;
+            border: none;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .calendar-controls button:hover {
+            background-color: #ff4c4c;
+        }
+
+        .calendar-controls .search-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .calendar-controls .search-container input {
+            padding: 5px;
+            margin-left: 10px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .header {
+            font-weight: bold;
+            text-align: center;
+            background-color: #ff6b6b;
+            color: white;
+            padding: 5px;
+        }
+
+        .day {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .today {
+            background-color: #ffe6e6;
+        }
+
+        .notifications {
+            flex: 1;
+            min-width: 300px;
+            max-width: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ddd;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+            height: 200px; /* Adjust height as needed */
+        }
+
+        .notification-bar {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification-content {
+            position: absolute;
+            width: 100%;
+            animation: scroll-up 20s linear infinite;
+        }
+
+        @keyframes scroll-up {
+            0% {
+                top: 100%;
+            }
+            100% {
+                top: -100%;
+            }
+        }
+
+        .gallery {
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .image-gallery {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: auto;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.1);
+        }
+
+        .event-description {
+            flex: 2;
+            padding: 20px;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 40px 0;
+        }
+        footer .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        footer .footer-section {
+            flex: 1;
+            margin: 20px;
+            min-width: 200px;
+        }
+        footer .footer-section h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        footer .footer-section p, footer .footer-section a {
+            font-size: 14px;
+            line-height: 1.8;
+            color: white;
+            text-decoration: none;
+        }
+        footer .footer-section a:hover {
+            text-decoration: underline;
+        }
+        footer .social-icons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        footer .social-icons a {
+            margin: 0 10px;
+            color: white;
+            font-size: 18px;
+        }
+        footer .social-icons a:hover {
+            color: #ff9800;
+        }
+        footer .bottom-bar {
+            text-align: center;
+            margin-top: 20px;
+            border-top: 1px solid #555;
+            padding-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .event-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+        }
+
+        .event-name {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .has-event {
+            background-color: #e6f7ff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="explore.html">Explore Event</a></li>
+                <li><a href="#">Gallery</a></li>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Notification Panel</a></li>
+                <li><button class="sign-out" id="signOutButton">Sign Out</button></li>
+
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section class="calendar">
+            <h2>Calendar</h2>
+            <div class="calendar-controls">
+                <button onclick="prevMonth()">Previous Month</button>
+                <div id="calendar-month-year"></div>
+                <button onclick="nextMonth()">Next Month</button>
+                <div class="search-container">
+                    <input type="date" id="search-date" />
+                    <button onclick="searchByDate()">Search by Date</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendar"></div>
+        </section>
+        <section class="notifications">
+            <h2>Notifications</h2>
+            <div class="notification-bar" id="notification-bar">
+                <div class="notification-content" id="notification-content">
+                    <!-- Dynamic notifications will be inserted here -->
+                </div>
+            </div>
+        </section>
+        <section class="gallery">
+            <div class="image-gallery" id="image-gallery">
+                <img src="https://via.placeholder.com/300x200?text=Event+1" alt="Event 1" class="gallery-image">
+                <img src="https://via.placeholder.com/300x200?text=Event+2" alt="Event 2" class="gallery-image">
+                <img src="https://via.placeholder.com/300x200?text=Event+3" alt="Event 3" class="gallery-image">
+            </div>
+        </section>
+    </main>
+    <footer>
+        <div class="container">
+            <div class="footer-section">
+                <img src="23.jpg" alt="Volunteer Management System" style="width: 150px;">
+                <p>Volunteer Management System Join us in our commitment to fostering positive change and maximizing the impact of your volunteer programs.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Sitemap</h3>
+                <a href="#home">Home</a><br>
+                <a href="#about">About</a><br>
+                <a href="#partners">Partners</a><br>
+                <a href="#gallery">Gallery</a><br>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h3>Location</h3>
+                <p>Head Office<br> TC vvit<br>guntur namburu,<br> Andhra Pradhesh 522005</p>
+            </div>
+            <div class="footer-section">
+                <h3>Connect with Us</h3>
+                <p>Email: <a href="mailto:ravi@gmail.com">ravi@gmail.com</a></p>
+                <p>Phone: <a href="tel:+917901046508">+91 7901046508</a></p>
+                <div class="social-icons">
+                    <a href="#"><i class="fa fa-facebook"></i></a>
+                    <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-youtube"></i></a>
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                    <a href="#"><i class="fa fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-bar">
+            <p>&copy; 2024 Volunteer Management System by <a href="#">VVIT</a>. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div id="modalEventContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        const modal = document.getElementById("eventModal");
+        const closeModal = document.getElementById("closeModal");
+        closeModal.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function showEventDetails(event) {
+            const modalEventContent = document.getElementById("modalEventContent");
+            modalEventContent.innerHTML = `
+                <div class="event-title">${event.title}</div>
+                <div class="event-details">
+                    <p><strong>Date:</strong> ${event.date}</p>
+                    <p><strong>Time:</strong> ${event.time}</p>
+                    <p><strong>Venue:</strong> ${event.venue}</p>
+                    <p><strong>Description:</strong> ${event.description}</p>
+                </div>
+            `;
+            modal.style.display = "block";
+        }
+
+        function generateCalendar(month, year) {
+            const calendarElement = document.getElementById('calendar');
+            calendarElement.innerHTML = "";
+
+            const monthYearElement = document.getElementById('calendar-month-year');
+            monthYearElement.textContent = `${months[month]} ${year}`;
+
+            const firstDay = new Date(year, month).getDay();
+            const daysInMonth = 32 - new Date(year, month, 32).getDate();
+
+            const headers = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            headers.forEach(day => {
+                const headerElement = document.createElement('div');
+                headerElement.classList.add('header');
+                headerElement.textContent = day;
+                calendarElement.appendChild(headerElement);
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendarElement.appendChild(emptyCell);
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+                dayElement.textContent = day;
+
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                dayElement.setAttribute('data-date', dateStr);
+
+                if (day === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
+                    dayElement.classList.add('today');
+                }
+
+                dayElement.addEventListener('click', function () {
+                    fetchEventsByDate(dateStr);
+                });
+
+                calendarElement.appendChild(dayElement);
+            }
+
+            loadEventsToCalendar(month, year);
+        }
+
+        function prevMonth() {
+            currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+            currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function nextMonth() {
+            currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+            currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
+            generateCalendar(currentMonth, currentYear);
+        }
+
+        function searchByDate() {
+            const input = document.getElementById('search-date').value;
+            const date = new Date(input);
+            if (!isNaN(date)) {
+                currentYear = date.getFullYear();
+                currentMonth = date.getMonth();
+                generateCalendar(currentMonth, currentYear);
+                fetchEventsByDate(input);
+            }
+        }
+
+        function loadEventsToCalendar(month, year) {
+            fetch(`/api/events?month=${month + 1}&year=${year}`)
+                .then(response => response.json())
+                .then(events => {
+                    events.forEach(event => {
+                        const eventDate = new Date(event.date);
+                        const dayElement = document.querySelector(`.day[data-date='${event.date}']`);
+                        if (dayElement) {
+                            dayElement.classList.add('has-event');
+                            dayElement.innerHTML += `<div class="event-name">${event.title}</div>`;
+                            dayElement.addEventListener('click', () => showEventDetails(event));
+                        }
+                    });
+                });
+        }
+
+        function fetchEventsByDate(date) {
+            fetch(`/api/events?date=${date}`)
+                .then(response => response.json())
+                .then(events => {
+                    if (events.length > 0) {
+                        showEventDetails(events[0]);
+                    } else {
+                        alert("No events found on this date.");
+                    }
+                });
+        }
+        function signOut() {
+    fetch('/auth/logout', { method: 'POST' })
+        .then(response => {
+            if (response.ok) {
+                alert("Sign out successful!");
+                window.location.href = "index.html"; // Redirect to home or login page
+            } else {
+                alert("Failed to sign out.");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred. Please try again.");
+        });
+}
+
+document.getElementById('signOutButton').addEventListener('click', signOut);
+
+function checkSession() {
+    fetch('/api/current-user')
+        .then(response => {
+            if (response.status === 401) {
+                window.location.href = "index.html"; // Redirect to login page if not authenticated
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+// Call checkSession on page load to ensure user is authenticated
+document.addEventListener('DOMContentLoaded', checkSession);
+
+
+
+document.getElementById('signOutButton').addEventListener('click', signOut);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCalendar(currentMonth, currentYear);
+            loadEvents();
+        });
+
+        let currentImageIndex = 0;
+        const images = document.querySelectorAll('.gallery-image');
+        const descriptions = [
+            "Description of Event 1",
+            "Description of Event 2",
+            "Description of Event 3"
+        ];
+
+        function showNextImage() {
+            images[currentImageIndex].style.display = 'none';
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            images[currentImageIndex].style.display = 'block';
+        }
+
+        setInterval(showNextImage, 3000);
+
+        // Initial display setup
+        images[currentImageIndex].style.display = 'block';
+
+        async function loadEvents() {
+            const notificationContent = document.getElementById('notification-content');
+
+            try {
+                const response = await fetch('/api/events');
+                const events = await response.json();
+
+                notificationContent.innerHTML = ''; // Clear existing notifications
+
+                events.forEach(event => {
+                    const eventLink = document.createElement('p');
+                    eventLink.innerHTML = `<a href="#" class="event-link">${event.title}: ${event.date}, ${event.time}</a>`;
+                    notificationContent.appendChild(eventLink);
+                });
+
+                // Adjust the height of the notification bar based on the content
+                const notificationBar = document.getElementById('notification-bar');
+                notificationBar.style.height = notificationContent.scrollHeight + 'px';
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+    </script>
+</body>
+</html>

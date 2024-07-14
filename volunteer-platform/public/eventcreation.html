@@ -1,0 +1,156 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Event Creation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            header {
+                background-color: #333;
+                padding: 10px 0;
+                color: white;
+                text-align: center;
+            }
+            .container {
+                padding: 20px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input, .form-group textarea {
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+            .form-group button {
+                padding: 10px 20px;
+                background-color: #333;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+            .form-group button:hover {
+                background-color: #555;
+            }
+            .events {
+                margin-top: 20px;
+            }
+            .event {
+                border: 1px solid #ddd;
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+            .event img {
+                max-width: 100%;
+                height: auto;
+                margin-bottom: 10px;
+            }
+            footer {
+                background-color: #333;
+                color: #ccc;
+                padding: 20px 0;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Create an Event</h1>
+        </header>
+        <div class="container">
+            <div class="form-group">
+                <label for="event-title">Event Title</label>
+                <input type="text" id="event-title" placeholder="Enter event title">
+            </div>
+            <div class="form-group">
+                <label for="event-date">Event Date</label>
+                <input type="date" id="event-date">
+            </div>
+            <div class="form-group">
+                <label for="event-time">Event Time</label>
+                <input type="time" id="event-time">
+            </div>
+            <div class="form-group">
+                <label for="event-venue">Event Venue</label>
+                <input type="text" id="event-venue" placeholder="Enter event venue">
+            </div>
+            <div class="form-group">
+                <label for="event-description">Event Description</label>
+                <textarea id="event-description" rows="5" placeholder="Enter event description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="event-image">Event Image</label>
+                <input type="file" id="event-image" accept="image/*">
+            </div>
+            <div class="form-group">
+                <button id="create-event-btn">Create Event</button>
+            </div>
+            <div class="events" id="events"></div>
+        </div>
+        <footer>
+            <p>&copy; 2024 Volunteer Management System. All Rights Reserved.</p>
+        </footer>
+        <script>
+            document.getElementById('create-event-btn').addEventListener('click', createEvent);
+
+            async function createEvent(event) {
+                event.preventDefault();
+                
+                const title = document.getElementById('event-title').value;
+                const date = document.getElementById('event-date').value;
+                const time = document.getElementById('event-time').value;
+                const venue = document.getElementById('event-venue').value;
+                const description = document.getElementById('event-description').value;
+                const imageInput = document.getElementById('event-image');
+                const imageFile = imageInput.files[0];
+
+                if (title && date && time && venue && description && imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        const eventImageBase64 = event.target.result;
+
+                        // Create event object
+                        const eventData = {
+                            title,
+                            date,
+                            time,
+                            venue,
+                            description,
+                            image: eventImageBase64
+                        };
+
+                        // Send the event data to the server
+                        const response = await fetch('/api/create-event', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(eventData),
+                        });
+
+                        const result = await response.json();
+                        if (response.ok) {
+                            alert(result.message);
+                            displayEvent(eventData);
+                        } else {
+                            alert(result.message);
+                        }
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    alert('Please fill out all fields and select an image.');
+                }
+            }
+
+        </script>
+    </body>
+    </html>

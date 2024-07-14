@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 70%;
+            padding: 30px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            height: 350px;
+        }
+        .header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(50%);
+        }
+        .header .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+        }
+        .header .text {
+            font-size: 32px;
+            font-weight: bold;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+        .header .description {
+            font-size: 18px;
+            margin-top: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        .details {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #e8f4f8;
+            border-radius: 10px;
+        }
+        .details p {
+            margin: 15px 0;
+        }
+        .details p strong {
+            color: #007bff;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+        }
+        .volunteer-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+        }
+        .volunteer {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .volunteer img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .volunteer button {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: underline;
+        }
+        .volunteer button:hover {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img id="eventImage" src="" alt="Event Image">
+            <div class="overlay">
+                <div class="text">
+                    Event Details
+                    <div id="eventDescription" class="description"></div>
+                </div>
+            </div>
+        </div>
+        <div class="details">
+            <p><strong>Event Name:</strong> <span id="eventName"></span></p>
+            <p><strong>Event Date:</strong> <span id="eventDate"></span></p>
+            <p><strong>Venue:</strong> <span id="venue"></span></p>
+            <p><strong>Event Description:</strong> <span id="eventDescriptionText"></span></p>
+            <p><strong>No of registered volunteers:</strong> <span id="volunteersCount"></span></p>
+            <p><strong>Registered Volunteers:</strong></p>
+            <div class="volunteer-list" id="volunteerList">
+                <!-- Volunteer entries will be dynamically added here -->
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="delete-button" onclick="confirmDelete()">Delete Event</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+
+            if (!eventId) {
+                console.error('No event ID found in URL');
+                return;
+            }
+
+            fetch(`/api/events/${eventId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch event details');
+                    }
+                    return response.json();
+                })
+                .then(event => {
+                    displayEventDetails(event);
+                })
+                .catch(error => {
+                    console.error('Error fetching event details:', error);
+                });
+        });
+
+        function displayEventDetails(event) {
+            document.getElementById('eventName').textContent = event.title;
+            document.getElementById('eventDate').textContent = event.date;
+            document.getElementById('venue').textContent = event.venue;
+            document.getElementById('eventDescriptionText').textContent = event.description;
+            document.getElementById('volunteersCount').textContent = event.volunteers.length;
+
+            const volunteerList = document.getElementById('volunteerList');
+            volunteerList.innerHTML = '';
+
+            event.volunteers.forEach(volunteer => {
+                const volunteerDiv = document.createElement('div');
+                volunteerDiv.classList.add('volunteer');
+                volunteerDiv.innerHTML = `
+                    <img src="${volunteer.profilePic}" alt="${volunteer.email}">
+                    <div>
+                        <p><strong>Email:</strong> ${volunteer.email}</p>
+                        <p><strong>Date of Birth:</strong> ${volunteer.birthDate}</p>
+                        <p><strong>Phone:</strong> ${volunteer.phone}</p>
+                    </div>
+                `;
+                volunteerList.appendChild(volunteerDiv);
+            });
+
+            document.getElementById('eventImage').src = event.image;
+        }
+
+        function confirmDelete() {
+            if (confirm("Are you sure you want to delete this event?")) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const eventId = urlParams.get('id');
+
+                fetch(`/api/events/${eventId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete event');
+                    }
+                    alert('Event deleted successfully!');
+                    window.location.href = '/eventInfo';
+                })
+                .catch(error => {
+                    console.error('Error deleting event:', error);
+                    alert('Failed to delete event.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
