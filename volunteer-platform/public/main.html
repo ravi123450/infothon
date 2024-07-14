@@ -281,6 +281,62 @@
         .date-input-dialog .cancel-button:hover {
             background-color: #bbb;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .event-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+        }
+
+        .event-name {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .has-event {
+            background-color: #e6f7ff;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -291,16 +347,16 @@
             <a href="eventinfo.html"><button>Event Info</button></a>
             <a href="messages.html"><button>Messages</button></a>
             <button onclick="goToPage('event-status')">Event Status</button>
-            <li><button class="sign-out" id="signOutButton">Sign Out</button></li>
+            <button class="sign-out" id="signOutButton">Sign Out</button>
         </div>
         <div class="content-area">
             <div class="calendar-nav">
                 <button onclick="prevMonth()">Previous Month</button>
                 <span id="calendar-month-year"></span>
                 <button onclick="nextMonth()">Next Month</button>
-                <button style="color: black; background-color: white; padding-left: 60px;" class="search-button" onclick="toggleDateInputDialog()">
+                <button class="search-button" onclick="toggleDateInputDialog()">
                     Search by Date
-                    <img style="padding-left: 20px;" src="icons8-search.svg" alt="Search Icon" width="24" height="24">
+                    <img src="icons8-search.svg" alt="Search Icon" width="24" height="24">
                 </button>
             </div>
             <div class="calendar" id="calendar">
@@ -330,6 +386,12 @@
             </div>
         </div>
     </div>
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div id="modalEventContent"></div>
+        </div>
+    </div>
     <script>
         function goToPage(page) {
             alert('Going to ' + page);
@@ -339,6 +401,32 @@
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        const modal = document.getElementById("eventModal");
+        const closeModal = document.getElementById("closeModal");
+        closeModal.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function showEventDetails(event) {
+            const modalEventContent = document.getElementById("modalEventContent");
+            modalEventContent.innerHTML = `
+                <div class="event-title">${event.title}</div>
+                <div class="event-details">
+                    <p><strong>Date:</strong> ${event.date}</p>
+                    <p><strong>Time:</strong> ${event.time}</p>
+                    <p><strong>Venue:</strong> ${event.venue}</p>
+                    <p><strong>Description:</strong> ${event.description}</p>
+                </div>
+            `;
+            modal.style.display = "block";
+        }
 
         function generateCalendar(month, year) {
             const calendarElement = document.getElementById('calendar');
@@ -366,12 +454,23 @@
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayElement = document.createElement('div');
                 dayElement.classList.add('day');
+                dayElement.textContent = day;
+
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                dayElement.setAttribute('data-date', dateStr);
+
                 if (day === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
                     dayElement.classList.add('today');
                 }
-                dayElement.textContent = day;
+
+                dayElement.addEventListener('click', function () {
+                    fetchEventsByDate(dateStr);
+                });
+
                 calendarElement.appendChild(dayElement);
             }
+
+            loadEventsToCalendar(month, year);
         }
 
         function prevMonth() {
@@ -402,15 +501,75 @@
             }
         }
 
-        function donateNow() {
-            alert('Redirecting to donation page...');
+        function signOut() {
+            fetch('/auth/logout', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Sign out successful!");
+                        window.location.href = "index.html"; // Redirect to home or login page
+                    } else {
+                        alert("Failed to sign out.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred. Please try again.");
+                });
         }
+
+        document.getElementById('signOutButton').addEventListener('click', signOut);
+
+        function checkSession() {
+            fetch('/api/current-user')
+                .then(response => {
+                    if (response.status === 401) {
+                        window.location.href = "index.html"; // Redirect to login page if not authenticated
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function loadEventsToCalendar(month, year) {
+            fetch(`/api/events?month=${month + 1}&year=${year}`)
+                .then(response => response.json())
+                .then(events => {
+                    events.forEach(event => {
+                        const eventDate = new Date(event.date);
+                        const dayElement = document.querySelector(`.day[data-date='${event.date}']`);
+                        if (dayElement) {
+                            dayElement.classList.add('has-event');
+                            dayElement.innerHTML += `<div class="event-name">${event.title}</div>`;
+                            dayElement.addEventListener('click', () => showEventDetails(event));
+                        }
+                    });
+                });
+        }
+
+        function fetchEventsByDate(date) {
+            fetch(`/api/events?date=${date}`)
+                .then(response => response.json())
+                .then(events => {
+                    if (events.length > 0) {
+                        showEventDetails(events[0]);
+                    } else {
+                        alert("No events found on this date.");
+                    }
+                });
+        }
+
+        // Call checkSession on page load to ensure user is authenticated
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSession();
+            generateCalendar(currentMonth, currentYear);
+            showImage(currentImageIndex);
+        });
 
         let currentImageIndex = 0;
         const images = [
- 
             {
-                src: 'https://via.placeholder.com/600x400/7f7fff',
+                src: 'image.png',
                 title: 'Contribute to our healthcare initiative',
                 description: 'Your donations will help us offer medical care and support to communities without access to essential healthcare services.'
             },
@@ -434,47 +593,6 @@
             currentImageIndex = (currentImageIndex + 1) % images.length;
             showImage(currentImageIndex);
         }
-        function signOut() {
-    fetch('/auth/logout', { method: 'POST' })
-        .then(response => {
-            if (response.ok) {
-                alert("Sign out successful!");
-                window.location.href = "index.html"; // Redirect to home or login page
-            } else {
-                alert("Failed to sign out.");
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert("An error occurred. Please try again.");
-        });
-}
-
-document.getElementById('signOutButton').addEventListener('click', signOut);
-
-function checkSession() {
-    fetch('/api/current-user')
-        .then(response => {
-            if (response.status === 401) {
-                window.location.href = "index.html"; // Redirect to login page if not authenticated
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-}
-
-// Call checkSession on page load to ensure user is authenticated
-document.addEventListener('DOMContentLoaded', checkSession);
-
-
-
-document.getElementById('signOutButton').addEventListener('click', signOut);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            generateCalendar(currentMonth, currentYear);
-            showImage(currentImageIndex);
-        });
     </script>
 </body>
 </html>
